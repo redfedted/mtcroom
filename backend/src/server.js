@@ -44,15 +44,6 @@ async function startServer() {
         await sequelize.sync({ alter: true });
         console.log('Database synced');
 
-        // Run migrations
-        const { execSync } = require('child_process');
-        try {
-            execSync('npx sequelize-cli db:migrate', { stdio: 'inherit' });
-            console.log('Migrations completed successfully');
-        } catch (migrationError) {
-            console.error('Migration error:', migrationError);
-        }
-
         // Setup admin user
         try {
             await setupAdminUser();
