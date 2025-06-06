@@ -12,7 +12,8 @@ router.post('/register',
         body('email').isEmail().withMessage('Valid email is required'),
         body('password')
             .isLength({ min: 6 })
-            .withMessage('Password must be at least 6 characters long')
+            .withMessage('Password must be at least 6 characters long'),
+        body('phone').optional().trim()
     ],
     async (req, res) => {
         try {
@@ -24,7 +25,7 @@ router.post('/register',
                 });
             }
 
-            const { name, email, password } = req.body;
+            const { name, email, password, phone } = req.body;
 
             // Check if user already exists
             const existingUser = await User.findOne({ where: { email } });
@@ -39,14 +40,15 @@ router.post('/register',
             const user = await User.create({
                 name,
                 email,
-                password
+                password,
+                phone
             });
 
-            // Generate token
+            // Generate token with default expiration if not set
             const token = jwt.sign(
                 { id: user.id },
                 process.env.JWT_SECRET,
-                { expiresIn: process.env.JWT_EXPIRES_IN }
+                { expiresIn: process.env.JWT_EXPIRES_IN || '24h' } // Default to 24 hours if not set
             );
 
             res.status(201).json({
@@ -56,12 +58,14 @@ router.post('/register',
                         id: user.id,
                         name: user.name,
                         email: user.email,
+                        phone: user.phone,
                         role: user.role
                     },
                     token
                 }
             });
         } catch (error) {
+            console.error('Registration error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error registering user',
@@ -107,11 +111,11 @@ router.post('/login',
                 });
             }
 
-            // Generate token
+            // Generate token with default expiration if not set
             const token = jwt.sign(
                 { id: user.id },
                 process.env.JWT_SECRET,
-                { expiresIn: process.env.JWT_EXPIRES_IN }
+                { expiresIn: process.env.JWT_EXPIRES_IN || '24h' } // Default to 24 hours if not set
             );
 
             res.json({
@@ -131,8 +135,7 @@ router.post('/login',
             res.status(500).json({
                 success: false,
                 message: 'Error logging in',
-                error: error.message,
-                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+                error: error.message
             });
         }
     }

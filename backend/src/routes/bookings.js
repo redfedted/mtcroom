@@ -143,7 +143,6 @@ router.get('/check-availability', async (req, res) => {
 
 // Create booking
 router.post('/',
-    auth,
     [
         body('roomId').notEmpty().withMessage('Room ID is required'),
         body('checkIn').isISO8601().withMessage('Valid check-in date is required'),
@@ -232,8 +231,8 @@ router.post('/',
 
             // Create booking
             const booking = await Booking.create({
-                RoomId: roomId, // Changed from roomId to RoomId to match model
-                UserId: req.user.id,
+                RoomId: roomId,
+                UserId: req.user?.id, // Optional user ID for authenticated users
                 checkIn,
                 checkOut,
                 totalPrice,
