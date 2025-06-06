@@ -40,6 +40,15 @@ async function startServer() {
         await sequelize.authenticate();
         console.log('Database connection established successfully.');
         
+        // Run migrations
+        const { execSync } = require('child_process');
+        try {
+            execSync('npx sequelize-cli db:migrate', { stdio: 'inherit' });
+            console.log('Migrations completed successfully');
+        } catch (migrationError) {
+            console.error('Migration error:', migrationError);
+        }
+
         // Sync database without force (won't reset data)
         await sequelize.sync();
         console.log('Database synced');
