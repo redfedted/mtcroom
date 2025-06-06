@@ -18,7 +18,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { format, differenceInDays } from 'date-fns';
 import { bookingsAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import ProtectedRoute from '../components/ProtectedRoute';
 
 const Book = () => {
     const navigate = useNavigate();
@@ -100,8 +99,8 @@ const Book = () => {
             console.log('Booking response:', response.data);
 
             if (response.data.success) {
-                navigate('/my-bookings', {
-                    state: { message: 'Booking created successfully!' },
+                navigate('/rooms', {
+                    state: { message: 'Booking created successfully! Please wait for confirmation.' },
                 });
             } else {
                 setError(response.data.message || 'Failed to create booking');
@@ -119,120 +118,118 @@ const Book = () => {
     }
 
     return (
-        <ProtectedRoute>
-            <Container maxWidth="md" sx={{ py: 4 }}>
-                <Paper elevation={3} sx={{ p: 4 }}>
-                    <Typography variant="h4" gutterBottom>
-                        Book Room
-                    </Typography>
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 2 }}>
-                            {error}
-                        </Alert>
-                    )}
-                    <form onSubmit={handleSubmit}>
-                        <Grid container spacing={3}>
-                            <Grid item xs={12}>
-                                <Typography variant="h6" gutterBottom>
-                                    Room Details
-                                </Typography>
-                                <Typography variant="body1" gutterBottom>
-                                    {room.name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" gutterBottom>
-                                    {room.description}
-                                </Typography>
-                                <Box sx={{ mt: 1 }}>
-                                    {room.facilities.map((facility, index) => (
-                                        <Chip
-                                            key={index}
-                                            label={facility}
-                                            size="small"
-                                            sx={{ mr: 1, mb: 1 }}
-                                        />
-                                    ))}
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        label="Check-in Date"
-                                        value={bookingData.checkIn}
-                                        onChange={handleDateChange('checkIn')}
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                        minDate={new Date()}
+        <Container maxWidth="md" sx={{ py: 4 }}>
+            <Paper elevation={3} sx={{ p: 4 }}>
+                <Typography variant="h4" gutterBottom>
+                    Book Room
+                </Typography>
+                {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Alert>
+                )}
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <Typography variant="h6" gutterBottom>
+                                Room Details
+                            </Typography>
+                            <Typography variant="body1" gutterBottom>
+                                {room.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {room.description}
+                            </Typography>
+                            <Box sx={{ mt: 1 }}>
+                                {room.facilities.map((facility, index) => (
+                                    <Chip
+                                        key={index}
+                                        label={facility}
+                                        size="small"
+                                        sx={{ mr: 1, mb: 1 }}
                                     />
-                                </LocalizationProvider>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        label="Check-out Date"
-                                        value={bookingData.checkOut}
-                                        onChange={handleDateChange('checkOut')}
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                        minDate={bookingData.checkIn || new Date()}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Your Name"
-                                    name="reserverName"
-                                    value={bookingData.reserverName}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Phone Number"
-                                    name="reserverPhone"
-                                    value={bookingData.reserverPhone}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    fullWidth
-                                    label="Special Requests"
-                                    name="specialRequests"
-                                    value={bookingData.specialRequests}
-                                    onChange={handleChange}
-                                    multiline
-                                    rows={4}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Divider sx={{ my: 2 }} />
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Box>
-                                        <Typography variant="subtitle1">
-                                            Total Nights: {calculateTotalNights()}
-                                        </Typography>
-                                        <Typography variant="h6">
-                                            Total Price: ₹{calculateTotalPrice()}
-                                        </Typography>
-                                    </Box>
-                                    <Button
-                                        type="submit"
-                                        variant="contained"
-                                        color="primary"
-                                        size="large"
-                                        disabled={loading}
-                                    >
-                                        {loading ? 'Booking...' : 'Book Now'}
-                                    </Button>
-                                </Box>
-                            </Grid>
+                                ))}
+                            </Box>
                         </Grid>
-                    </form>
-                </Paper>
-            </Container>
-        </ProtectedRoute>
+                        <Grid item xs={12} md={6}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    label="Check-in Date"
+                                    value={bookingData.checkIn}
+                                    onChange={handleDateChange('checkIn')}
+                                    renderInput={(params) => <TextField {...params} fullWidth />}
+                                    minDate={new Date()}
+                                />
+                            </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    label="Check-out Date"
+                                    value={bookingData.checkOut}
+                                    onChange={handleDateChange('checkOut')}
+                                    renderInput={(params) => <TextField {...params} fullWidth />}
+                                    minDate={bookingData.checkIn || new Date()}
+                                />
+                            </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Your Name"
+                                name="reserverName"
+                                value={bookingData.reserverName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                label="Phone Number"
+                                name="reserverPhone"
+                                value={bookingData.reserverPhone}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Special Requests (Optional)"
+                                name="specialRequests"
+                                value={bookingData.specialRequests}
+                                onChange={handleChange}
+                                multiline
+                                rows={4}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 2 }} />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                    <Typography variant="subtitle1">
+                                        Total Nights: {calculateTotalNights()}
+                                    </Typography>
+                                    <Typography variant="h6">
+                                        Total Price: ₹{calculateTotalPrice()}
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    size="large"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Booking...' : 'Book Now'}
+                                </Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+        </Container>
     );
 };
 
