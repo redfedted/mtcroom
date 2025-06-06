@@ -40,6 +40,10 @@ async function startServer() {
         await sequelize.authenticate();
         console.log('Database connection established successfully.');
         
+        // First sync the database to ensure tables exist
+        await sequelize.sync({ alter: true });
+        console.log('Database synced');
+
         // Run migrations
         const { execSync } = require('child_process');
         try {
@@ -49,18 +53,20 @@ async function startServer() {
             console.error('Migration error:', migrationError);
         }
 
-        // Sync database without force (won't reset data)
-        await sequelize.sync();
-        console.log('Database synced');
-
         // Setup admin user
-        await setupAdminUser();
+        try {
+            await setupAdminUser();
+            console.log('Admin user setup completed');
+        } catch (adminError) {
+            console.error('Error setting up admin user:', adminError);
+        }
 
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
     } catch (error) {
         console.error('Unable to start server:', error);
+        process.exit(1); // Exit if we can't start the server
     }
 }
 

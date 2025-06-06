@@ -25,7 +25,8 @@ async function setupAdminUser() {
             name: 'Roomie Admin',
             email: 'admin@roomie.com',
             password: 'Admin@123', // This will be hashed automatically
-            role: 'admin'
+            role: 'admin',
+            phone: null // Add phone field as null
         });
 
         console.log('Permanent admin user created successfully:', {
@@ -37,6 +38,7 @@ async function setupAdminUser() {
 
     } catch (error) {
         console.error('Error setting up admin user:', error);
+        throw error; // Re-throw the error to be handled by the caller
     }
 }
 
