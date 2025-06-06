@@ -127,10 +127,12 @@ router.post('/login',
                 }
             });
         } catch (error) {
+            console.error('Login error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error logging in',
-                error: error.message
+                error: error.message,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
             });
         }
     }
