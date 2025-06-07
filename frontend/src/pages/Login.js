@@ -17,8 +17,6 @@ const Login = () => {
     const location = useLocation();
     const { login } = useAuth();
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
         name: '',
         phone: '',
     });
@@ -38,8 +36,6 @@ const Login = () => {
 
         try {
             await login({
-                email: formData.email,
-                password: formData.password,
                 name: formData.name,
                 phone: formData.phone
             });
@@ -83,44 +79,22 @@ const Login = () => {
                     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
                         <TextField
                             margin="normal"
-                            fullWidth
-                            id="email"
-                            label="Email Address (for Admin)"
-                            name="email"
-                            autoComplete="email"
-                            autoFocus
-                            value={formData.email}
-                            onChange={handleChange}
-                        />
-                        <TextField
-                            margin="normal"
-                            fullWidth
-                            name="password"
-                            label="Password (for Admin)"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            value={formData.password}
-                            onChange={handleChange}
-                        />
-                        <Typography variant="subtitle1" sx={{ my: 2 }}>
-                            OR
-                        </Typography>
-                        <TextField
-                            margin="normal"
+                            required
                             fullWidth
                             id="name"
-                            label="Your Name (for Users)"
+                            label="Your Name"
                             name="name"
                             autoComplete="name"
+                            autoFocus
                             value={formData.name}
                             onChange={handleChange}
                         />
                         <TextField
                             margin="normal"
+                            required
                             fullWidth
                             name="phone"
-                            label="Phone Number (for Users)"
+                            label="Phone Number"
                             type="tel"
                             id="phone"
                             autoComplete="tel"

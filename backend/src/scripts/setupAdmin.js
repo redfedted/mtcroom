@@ -11,7 +11,8 @@ async function setupAdminUser() {
         // Check if admin user already exists
         const existingAdmin = await User.findOne({
             where: {
-                email: 'admin@roomie.com'
+                name: 'Roomie Admin',
+                phone: '1234567890'
             }
         });
 
@@ -23,16 +24,16 @@ async function setupAdminUser() {
         // Create admin user with secure credentials
         const adminUser = await User.create({
             name: 'Roomie Admin',
-            email: 'admin@roomie.com',
-            password: 'Admin@123', // This will be hashed automatically
+            email: null,
+            password: null,
             role: 'admin',
-            phone: null // Add phone field as null
+            phone: '1234567890'
         });
 
         console.log('Permanent admin user created successfully:', {
             id: adminUser.id,
             name: adminUser.name,
-            email: adminUser.email,
+            phone: adminUser.phone,
             role: adminUser.role
         });
 
