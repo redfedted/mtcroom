@@ -143,6 +143,7 @@ router.get('/check-availability', async (req, res) => {
 
 // Create booking
 router.post('/',
+    auth,
     [
         body('roomId').notEmpty().withMessage('Room ID is required'),
         body('checkIn').isISO8601().withMessage('Valid check-in date is required'),
@@ -232,7 +233,7 @@ router.post('/',
             // Create booking
             const booking = await Booking.create({
                 RoomId: roomId,
-                UserId: req.user?.id || null, // Ensure UserId is explicitly null if not present
+                UserId: req.user?.id,
                 checkIn,
                 checkOut,
                 totalPrice,
