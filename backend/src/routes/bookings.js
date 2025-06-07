@@ -232,7 +232,7 @@ router.post('/',
             // Create booking
             const booking = await Booking.create({
                 RoomId: roomId,
-                UserId: req.user?.id, // Optional user ID for authenticated users
+                UserId: req.user?.id || null, // Ensure UserId is explicitly null if not present
                 checkIn,
                 checkOut,
                 totalPrice,
@@ -261,8 +261,8 @@ router.post('/',
             console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
-                message: 'Error creating booking',
-                error: error.message
+                message: error.message || 'Failed to create booking',
+                error: error.message,
             });
         }
     }
