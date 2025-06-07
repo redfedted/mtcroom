@@ -18,10 +18,7 @@ const Register = () => {
     const { register } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
         phone: '',
-        password: '',
-        confirmPassword: '',
     });
     const [error, setError] = useState('');
 
@@ -37,17 +34,10 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-
         try {
             await register({
                 name: formData.name,
-                email: formData.email,
                 phone: formData.phone,
-                password: formData.password,
             });
             navigate('/login');
         } catch (err) {
@@ -103,48 +93,11 @@ const Register = () => {
                                 <TextField
                                     required
                                     fullWidth
-                                    id="email"
-                                    label="Email Address"
-                                    name="email"
-                                    autoComplete="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
                                     id="phone"
                                     label="Phone Number"
                                     name="phone"
                                     autoComplete="tel"
                                     value={formData.phone}
-                                    onChange={handleChange}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    name="password"
-                                    label="Password"
-                                    type="password"
-                                    id="password"
-                                    autoComplete="new-password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    name="confirmPassword"
-                                    label="Confirm Password"
-                                    type="password"
-                                    id="confirmPassword"
-                                    value={formData.confirmPassword}
                                     onChange={handleChange}
                                 />
                             </Grid>

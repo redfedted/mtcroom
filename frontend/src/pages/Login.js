@@ -17,8 +17,8 @@ const Login = () => {
     const location = useLocation();
     const { login } = useAuth();
     const [formData, setFormData] = useState({
-        email: '',
-        password: '',
+        name: '',
+        phone: '',
     });
     const [error, setError] = useState('');
 
@@ -36,8 +36,8 @@ const Login = () => {
 
         try {
             await login({
-                email: formData.email,
-                password: formData.password
+                name: formData.name,
+                phone: formData.phone
             });
             const from = location.state?.from?.pathname || '/';
             navigate(from, { replace: true });
@@ -81,24 +81,24 @@ const Login = () => {
                             margin="normal"
                             required
                             fullWidth
-                            id="email"
-                            label="Email Address"
-                            name="email"
-                            autoComplete="email"
+                            id="name"
+                            label="Your Name"
+                            name="name"
+                            autoComplete="name"
                             autoFocus
-                            value={formData.email}
+                            value={formData.name}
                             onChange={handleChange}
                         />
                         <TextField
                             margin="normal"
                             required
                             fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            value={formData.password}
+                            name="phone"
+                            label="Phone Number"
+                            type="tel"
+                            id="phone"
+                            autoComplete="tel"
+                            value={formData.phone}
                             onChange={handleChange}
                         />
                         <Button

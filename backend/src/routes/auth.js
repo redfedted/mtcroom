@@ -9,11 +9,7 @@ const { auth } = require('../middleware/auth');
 router.post('/register',
     [
         body('name').trim().notEmpty().withMessage('Name is required'),
-        body('email').isEmail().withMessage('Valid email is required'),
-        body('password')
-            .isLength({ min: 6 })
-            .withMessage('Password must be at least 6 characters long'),
-        body('phone').optional().trim()
+        body('phone').optional().trim() // Only phone is optional, email and password removed
     ],
     async (req, res) => {
         try {
@@ -25,26 +21,26 @@ router.post('/register',
                 });
             }
 
-            const { name, email, password, phone } = req.body;
+            const { name, phone } = req.body; // Only taking name and phone
 
-            // Check if user already exists
-            const existingUser = await User.findOne({ where: { email } });
+            // Check if user already exists based on phone number
+            const existingUser = await User.findOne({ where: { phone } });
             if (existingUser) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Email already registered'
+                    message: 'Phone number already registered'
                 });
             }
 
             // Create new user
             const user = await User.create({
                 name,
-                email,
-                password,
                 phone
             });
 
-            // Generate token with default expiration if not set
+            // Generate token (only for authenticated users, but if we are allowing registration without email/password,
+            // the token generation and subsequent login flow needs re-evaluation based on how non-admin users will log in).
+            // For now, we will generate a token but note that traditional login with email/password won't work for these users.
             const token = jwt.sign(
                 { id: user.id },
                 process.env.JWT_SECRET,
@@ -57,7 +53,6 @@ router.post('/register',
                     user: {
                         id: user.id,
                         name: user.name,
-                        email: user.email,
                         phone: user.phone,
                         role: user.role
                     },
@@ -77,37 +72,47 @@ router.post('/register',
 
 // Login
 router.post('/login',
-    [
-        body('email').isEmail().withMessage('Valid email is required'),
-        body('password').notEmpty().withMessage('Password is required')
-    ],
+    [], // Validation will be handled conditionally inside the route
     async (req, res) => {
         try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
+            const { email, password, name, phone } = req.body;
+            let user = null;
+            let isValidPassword = false;
+
+            // Check for admin/email-based login
+            if (email && password) {
+                user = await User.findOne({ where: { email } });
+                if (user && user.password) { // Only validate password if it exists for the user (i.e., admin or old registration)
+                    isValidPassword = await user.validatePassword(password);
+                } else if (user && !user.password) {
+                    // User exists but has no password, so they registered with name/phone. Invalid credentials for this login method.
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Invalid credentials: Please use Name and Phone to login'
+                    });
+                }
+
+                if (!user || !isValidPassword) {
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Invalid credentials'
+                    });
+                }
+            } else if (name && phone) {
+                // Check for regular user (name and phone) login
+                user = await User.findOne({ where: { name, phone } });
+
+                if (!user) {
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Invalid credentials'
+                    });
+                }
+            } else {
+                // Neither email/password nor name/phone provided
                 return res.status(400).json({
                     success: false,
-                    errors: errors.array()
-                });
-            }
-
-            const { email, password } = req.body;
-
-            // Find user
-            const user = await User.findOne({ where: { email } });
-            if (!user) {
-                return res.status(401).json({
-                    success: false,
-                    message: 'Invalid credentials'
-                });
-            }
-
-            // Validate password
-            const isValidPassword = await user.validatePassword(password);
-            if (!isValidPassword) {
-                return res.status(401).json({
-                    success: false,
-                    message: 'Invalid credentials'
+                    message: 'Please provide either Email and Password or Name and Phone Number'
                 });
             }
 
@@ -124,7 +129,8 @@ router.post('/login',
                     user: {
                         id: user.id,
                         name: user.name,
-                        email: user.email,
+                        email: user.email, // Include email, it might be null for some users
+                        phone: user.phone,
                         role: user.role
                     },
                     token
